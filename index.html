@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>4 Pasta ve Mumlar</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: #fff0f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    user-select: none;
+    overflow: hidden;
+    flex-wrap: wrap;
+  }
+
+  .cake-wrapper {
+    position: relative;
+    font-size: 140px;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 1.5s ease;
+    min-width: 120px;
+  }
+
+  /* Pasta emoji */
+  .cake {
+    display: block;
+  }
+
+  /* Mum ateşi */
+  .flame {
+    position: absolute;
+    top: 8px; /* Pasta emoji üzerindeki mumun üstüne ayarlayın */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 30px;
+    background: radial-gradient(circle at 50% 50%, #fff68f, #ff9000 60%, transparent 90%);
+    border-radius: 50% 50% 50% 50% / 70% 70% 40% 40%;
+    filter: drop-shadow(0 0 6px #ffb300);
+    animation: flicker 1.2s infinite;
+    transition: none;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .flame.off {
+    display: none;
+    animation-play-state: paused;
+  }
+
+  @keyframes flicker {
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: 1;}
+    50% { transform: translateX(calc(-50% + 2px)) scale(0.85); opacity: 0.8;}
+  }
+
+  /* Mesaj */
+  #message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, 30px);
+    font-size: 3rem;
+    color: #e91e63;
+    opacity: 0;
+    user-select: text;
+    transition: opacity 1.8s ease, transform 1.8s ease;
+    z-index: 10;
+    text-align: center;
+    max-width: 90vw;
+    padding: 0 10px;
+  }
+
+  #message.show {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Uçan şekiller (kalp ve konfeti) */
+  .floating-shape {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.9;
+    user-select: none;
+  }
+
+  .heart {
+    width: 22px;
+    height: 22px;
+    background: #e91e63;
+    clip-path: polygon(
+      50% 15%, 61% 20%, 70% 32%, 70% 45%, 50% 70%, 30% 45%, 30% 32%, 39% 20%
+    );
+    animation: floatUp linear infinite;
+  }
+
+  .confetti {
+    width: 12px;
+    height: 12px;
+    background: #ff4081;
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    animation: floatUp linear infinite;
+  }
+
+  @keyframes floatUp {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-150vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  /* Responsive - Mobil için font küçültme */
+  @media (max-width: 480px) {
+    .cake-wrapper {
+      font-size: 90px;
+      min-width: 80px;
+    }
+
+    #message {
+      font-size: 2rem;
+    }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="cake-wrapper" data-index="0" title="Tıkla, mum sönsün">
+  <div class="cake">🎂</div>
+  <div class="flame"></div>
+</div>
+<div class="cake-wrapper" data-index="1" title="Tıkla, mum sönsün">
+  <div class="cake">🎂</div>
+  <div class="flame"></div>
+</div>
+<div class="cake-wrapper" data-index="2" title="Tıkla, mum sönsün">
+  <div class="cake">🎂</div>
+  <div class="flame"></div>
+</div>
+<div class="cake-wrapper" data-index="3" title="Tıkla, mum sönsün">
+  <div class="cake">🎂</div>
+  <div class="flame"></div>
+</div>
+
+<!-- Mesaj alanı -->
+<div id="message">Doğum günün kutlu olsun Sevgilim ❤️</div>
+
+<script>
+  const cakeWrappers = document.querySelectorAll('.cake-wrapper');
+  const message = document.getElementById('message');
+  let extinguishedCount = 0;
+  let floatingInterval;
+
+  function createShape(type) {
+    const shape = document.createElement('div');
+    shape.classList.add('floating-shape', type);
+    shape.style.left = Math.random() * 100 + 'vw';
+    shape.style.bottom = '-50px';
+    const duration = 4000 + Math.random() * 4000;
+    shape.style.animationDuration = duration + 'ms';
+
+    if (type === 'confetti') {
+      const colors = ['#ff4081', '#f50057', '#ff80ab', '#ff1744'];
+      shape.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    } else if (type === 'heart') {
+      const colors = ['#e91e63', '#ad1457', '#f48fb1', '#c2185b'];
+      shape.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    document.body.appendChild(shape);
+    setTimeout(() => {
+      shape.remove();
+    }, duration);
+  }
+
+  function startFloatingEffects() {
+    floatingInterval = setInterval(() => {
+      const type = Math.random() > 0.5 ? 'heart' : 'confetti';
+      createShape(type);
+    }, 150);
+  }
+
+  cakeWrappers.forEach(wrapper => {
+    wrapper.addEventListener('click', () => {
+      const flame = wrapper.querySelector('.flame');
+      if (!flame.classList.contains('off')) {
+        flame.classList.add('off');
+        extinguishedCount++;
+        wrapper.style.opacity = '0.3';
+        if (extinguishedCount === cakeWrappers.length) {
+          cakeWrappers.forEach(w => w.style.opacity = '0');
+          setTimeout(() => {
+            message.classList.add('show');
+            startFloatingEffects();
+          }, 600);
+        }
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
